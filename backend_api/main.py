@@ -1,6 +1,4 @@
-from distutils.log import debug
-import sys
-from typing import Union
+from asyncio.log import logger
 from backend_api.api_clients import NourishMeAPIClient
 from backend_api.config import BASE_API_URL
 
@@ -13,6 +11,7 @@ app = FastAPI(debug=True)
 @app.get("/")
 def index():
     """Makes request to the nourish.me API to  place the order"""
+    logger.info("Making request ...")
     with open("data/employee_orders.xml", "r") as f:
         request_data = _data_order_request_body(f.read())
     
