@@ -1,0 +1,20 @@
+{
+    "dishes": [
+        {
+            "id": 13,
+            "name": "Kebap"
+        },
+        {
+            "id": 3,
+            "name": "Pizza Quattro Formaggi"
+        },
+        {
+            "id": 23,
+            "name": "Fried Chicken"
+        },
+        {
+            "id": 42,
+            "name": "Caesar Salad"
+        }
+    ]
+}

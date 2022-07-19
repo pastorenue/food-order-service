@@ -1,8 +1,8 @@
 version: "3.8"
 services:
   backend-api:
-    container_name: backend-api
-    command: uvicorn backend-api.main:app --host 0.0.0.0 --port 8005
+    container_name: backend_api
+    command: uvicorn backend_api.main:app --host 0.0.0.0 --port 8005
     build:
       context: .
       dockerfile: Dockerfile
@@ -11,7 +11,7 @@ services:
     networks:
       - momox
     volumes:
-      - .:/backend-api:cached
+      - ${PWD}:/backend_api
 networks:
   momox:
     external: false
