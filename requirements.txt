@@ -1,0 +1,6 @@
+xmltodict==0.13.0
+requests==2.28.1
+urllib3==1.26.3
+pytest==6.2.5
+fastapi
+uvicorn[standard]
