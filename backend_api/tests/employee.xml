@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="utf-8"?>  
+<Employees>
+    <Employee>
+        <Name>Employee A</Name>
+        <Address>
+            <Street>Street A</Street>
+            <City>City A</City>
+            <PostalCode>12345</PostalCode>
+        </Address>
+        <IsAttending>true</IsAttending>
+        <Order>3x Pizza Quattro Formaggi</Order>
+    </Employee>
+    
+    <Employee>
+       <Name>Employee B</Name>
+        <Address>
+            <Street>Street B</Street>
+            <City>City B</City>
+            <PostalCode>21123</PostalCode>
+        </Address>
+        <IsAttending>true</IsAttending>
+        <Order>1x Pizza Quattro Formaggi, 2x Kebap</Order>
+    </Employee>
+</Employees>
