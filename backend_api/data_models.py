@@ -34,10 +34,7 @@ class CustomerDataMapper:
             self.logger.error("Connection Error") # Not the regular error logging
 
         if not menu:
-            with open("data/menu.json", "r") as f:
-                menu = self._process_json_response(
-                    json.loads(f.read())
-                )
+            return {}
         
         return [
             {
