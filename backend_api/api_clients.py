@@ -1,7 +1,8 @@
 from copy import deepcopy
+from functools import cached_property
 import json
-from logging import getLogger
-from sqlite3 import adapt
+import logging
+
 from typing import Dict, Optional, Tuple
 
 from backend_api.config import (
@@ -12,13 +13,17 @@ from backend_api.config import (
     MAX_RETRIES,
     STATUS_FORCE_LIST,
 )
-import requests
 from requests import Session
 from requests.adapters import HTTPAdapter
 from requests.packages.urllib3.util.retry import Retry
 
-logger = getLogger(__name__)
-
+LOG_TEMPLATE = (
+    "Food Order Service Request:\n"
+    "API_URL={api_url}\n"
+    "ENDPOINT={endpoint}\n"
+    "VERSION={version}\n"
+    "REQUEST_DATA:{request_data}\n"
+)
 
 def request_retry_session(
     retries: int=0,
@@ -63,9 +68,10 @@ class BaseAPIClient:
     }
     default_version = "v1"
 
-    def __init__(self, api_url, timeout: float=DEFAULT_TIMEOUT) -> None:
+    def __init__(self, api_url, timeout: float=DEFAULT_TIMEOUT, logger=None) -> None:
         self.api_url = api_url
         self.timeout = timeout
+        self.logger = logger or logging.getLogger(__name__)
     
     @property
     def client_api_key(self):
@@ -101,16 +107,36 @@ class BaseAPIClient:
         """Makes a post request to the API"""
         url = self._get_url(endpoint)
         try:
-            return request_retry_session().post(
+            response = request_retry_session().post(
                 url,
                 data=data,
                 headers=self._headers()
             )
+            # Log request details
+            self.logger.info(
+                self._log_message(
+                    api_url=url,
+                    request_data=data,
+                    endpoint=endpoint,
+                    version=self.default_version,
+                    status=response.status_code
+                )
+            )
+            return response
         except ConnectionError as e:
-            logger.error(f"Error: {str(e)}")
+            self.logger.error(f"Error: {str(e)}")
         return {
-            "details": "Error" # Not the regular error
+            "details": "Error" # Not the best error handler
         }
+    
+    def _log_message(self, api_url, request_data, endpoint, version: str="v1"):
+        """Format request information for logging"""
+        return LOG_TEMPLATE.format(
+            api_url=api_url,
+            request_data=request_data,
+            endpoint=endpoint,
+            version=version,
+        )
 
 
 class NourishMeAPIClient(BaseAPIClient):
@@ -122,19 +148,18 @@ class NourishMeAPIClient(BaseAPIClient):
     ) -> None:
         super(NourishMeAPIClient, self).__init__(api_url, timeout)
     
+    @cached_property
     def get_menu_list(self) -> Optional[Dict]:
         """Request menue list from the nourish.me API"""
         result = {}
         try:
             result = self._get('menu')
         except ConnectionError as e:
-            logger.error(f"Error occurred: {str(e)}")
+            self.logger.error(f"Error occurred: {str(e)}")
         finally: # TODO: Remove after testing
             with open("data/menu.json", "r") as f:
                 result = json.loads(f.read())
-            res = self._process_json_response(result)
-            print(res)
-            return res
+            return self._process_json_response(result)
     
     def _process_json_response(self, data: Dict) -> Dict:
         """Transform API response into annotated data object"""
@@ -142,16 +167,18 @@ class NourishMeAPIClient(BaseAPIClient):
             dishes = _data.get("dishes", {})
 
         return {
-            dish["name"]: dish["id"]
+            dish.get("name"): dish.get("id")
             for dish in dishes
+            if dish
         }
 
     def place_order(self, data: Dict, is_bulk=True) -> Optional[Dict]:
         """Place order"""
         endpoint = "bulk/order" if is_bulk else "..." # TODO: for a single order
+
         try:
             self._post(endpoint, data=data)
         except ConnectionError:
-            logger.error("An error occurred")
+            self.logger.error("An error occurred") # Not the best error handler
         finally:
             return data

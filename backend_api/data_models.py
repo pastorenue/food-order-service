@@ -20,7 +20,6 @@ class CustomerDataMapper:
             "postal_code": address.get("PostalCode")
         }
 
-    @property
     def dishes(self):
         orders = self.data.get("Order").split(',')
         order_list = [order.partition('x') for order in orders]
