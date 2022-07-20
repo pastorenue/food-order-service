@@ -51,3 +51,6 @@ $ docker-compose run --rm backend-api sh
 $ pytest
 ```
 
+#### TODO...
+It will be good to create an entry point file with the necessary commands like test,
+that can be run directly from the host machine without necessarily going into the docker shell
