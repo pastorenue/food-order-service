@@ -1,4 +1,3 @@
-from requests import request
 import requests
 from fastapi.testclient import TestClient
 from backend_api.main import app

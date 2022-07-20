@@ -1,4 +1,3 @@
-from unittest import result
 import pytest
 from backend_api.utils import (
     _xml_to_dict,
