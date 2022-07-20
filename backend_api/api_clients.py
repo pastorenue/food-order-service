@@ -169,8 +169,12 @@ class NourishMeAPIClient(BaseAPIClient):
 
         try:
             response = self._post(endpoint, data=data)
-            data = response.json()
+            if response.status_code == requests.codes.ok:
+                data = response.json()
         except ConnectionError:
-            self.logger.error("An error occurred") # Not the best error handler
+            # Not the best error handler
+            self.logger.error("HTTP Error occured. Couldn't access the API")
+        except requests.exceptions.RequestException as exc:
+            raise requests.HTTPError() from exc
         finally:
             return data
