@@ -16,6 +16,3 @@ of them is creating the docker image.
 $ cd food_order_system
 $ docker-compose build
 ```
-
-#### How it works
-The main

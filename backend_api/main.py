@@ -3,7 +3,7 @@ from backend_api.config import (
     BASE_API_URL,
     DEBUG
 )
-from backend_api.utils import _data_order_request_body
+from backend_api.utils import format_order_request_body
 
 from fastapi import FastAPI
 
@@ -18,7 +18,7 @@ def index():
     # rather than hardcode it here. But for now, the xml file has to be
     # saved in the data directory 
     with open("data/employee_orders.xml", "r") as f:
-        request_data = _data_order_request_body(f.read())
+        request_data = format_order_request_body(f.read())
     
     client = NourishMeAPIClient(BASE_API_URL)
 

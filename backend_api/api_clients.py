@@ -1,9 +1,9 @@
-from copy import deepcopy
 from functools import cached_property
-import json
 import logging
 
 from typing import Dict, Optional, Tuple
+
+import requests
 
 from backend_api.config import (
     BACKOFF_FACTOR,
@@ -144,40 +144,32 @@ class NourishMeAPIClient(BaseAPIClient):
     def __init__(
         self,
         api_url,
-        timeout: float = DEFAULT_TIMEOUT
+        timeout: float = DEFAULT_TIMEOUT,
+        logger = None
     ) -> None:
-        super(NourishMeAPIClient, self).__init__(api_url, timeout)
+        super(NourishMeAPIClient, self).__init__(api_url, timeout, logger=logger)
     
     @cached_property
     def get_menu_list(self) -> Optional[Dict]:
-        """Request menue list from the nourish.me API"""
+        """Request menu list from the nourish.me API"""
         result = {}
         try:
-            result = self._get('menu')
+            response = self._get('menu')
+            if response.status_code == requests.codes.ok:
+                result = response.json()
         except ConnectionError as e:
             self.logger.error(f"Error occurred: {str(e)}")
         finally: # TODO: Remove after testing
-            with open("data/menu.json", "r") as f:
-                result = json.loads(f.read())
-            return self._process_json_response(result)
-    
-    def _process_json_response(self, data: Dict) -> Dict:
-        """Transform API response into annotated data object"""
-        if _data := deepcopy(data):
-            dishes = _data.get("dishes", {})
-
-        return {
-            dish.get("name"): dish.get("id")
-            for dish in dishes
-            if dish
-        }
+            return result
 
     def place_order(self, data: Dict, is_bulk=True) -> Optional[Dict]:
         """Place order"""
-        endpoint = "bulk/order" if is_bulk else "..." # TODO: for a single order
+        endpoint = "bulk/order" if is_bulk else ... # TODO: for a single order
+        data = {}
 
         try:
-            self._post(endpoint, data=data)
+            response = self._post(endpoint, data=data)
+            data = response.json()
         except ConnectionError:
             self.logger.error("An error occurred") # Not the best error handler
         finally:

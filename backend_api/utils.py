@@ -17,7 +17,7 @@ def _xml_to_dict(xml: XML) -> Dict:
     return json.loads(json_string) # return a Dictionary
 
 
-def _data_order_request_body(xml: XML) -> Dict:
+def format_order_request_body(xml: XML) -> Dict:
     """Format data to order request body for our API call"""
     # Create a deep copy to avoid data modification
     data = _xml_to_dict(xml)
